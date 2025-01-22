@@ -1,0 +1,19 @@
+cc_library(
+    name = "myers",
+    hdrs = [
+        "algorithm.hpp",
+    ],
+)
+
+cc_test(
+    name = "test",
+
+    srcs = ["algorithm_test.cc"],
+    copts = ["-Iexternal/gtest/include"],
+    size="small",
+    deps = [
+        ":myers",
+        "@googletest//:gtest",
+        "@googletest//:gtest_main",
+    ],
+)
