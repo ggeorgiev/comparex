@@ -6,6 +6,9 @@ build:debug --spawn_strategy=standalone
 build:profile --compilation_mode=opt
 build:profile --copt=-O3
 
+build --copt="-Werror"
+build --copt="-Wsign-compare"
+
 build --disk_cache=
 build --nobuild_runfile_links
 build --experimental_inmemory_jdeps_files

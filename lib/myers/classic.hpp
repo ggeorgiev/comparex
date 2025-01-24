@@ -11,10 +11,10 @@ struct Record {
 
 template <typename R = Record>
 std::vector<R> compare(const std::string& a, const std::string& b) {
-    size_t m = a.length();
-    size_t n = b.length();
+    int m = a.length();
+    int n = b.length();
 
-    size_t offset = std::max(m, n);
+    int offset = std::max(m, n);
     std::vector<int> v(2 * offset + 1, 0);
     
     int x = 0, y = 0;
