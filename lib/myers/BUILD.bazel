@@ -7,11 +7,26 @@ cc_library(
 
 cc_test(
     name = "test",
-    srcs = ["classic_test.cc"],
+    srcs = [
+        "classic_test.cc",
+    ],
     size="small",
     deps = [
         ":myers",
         "@googletest//:gtest",
         "@googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "benchmark",
+    srcs = [
+        "classic_benchmark.cc",
+    ],
+    size="small",
+    deps = [
+        ":myers",
+        "@google_benchmark//:benchmark",
+        "@google_benchmark//:benchmark_main",
     ],
 )
