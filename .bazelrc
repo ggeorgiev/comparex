@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-build --symlink_prefix=/
-build --disk_cache=~/.cache/bazel
+build --disk_cache=
 build --nobuild_runfile_links
 build --experimental_inmemory_jdeps_files
 build --experimental_inmemory_dotd_files

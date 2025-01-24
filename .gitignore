@@ -16,6 +16,9 @@
 
 # bazel project
 .ijwb/
+/bazel-*
+/external
+/compile_commands.json
 
 # VS Code files
 .vscode/

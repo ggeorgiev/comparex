@@ -1,15 +1,13 @@
 cc_library(
     name = "myers",
     hdrs = [
-        "algorithm.hpp",
+        "classic.hpp",
     ],
 )
 
 cc_test(
     name = "test",
-
-    srcs = ["algorithm_test.cc"],
-    copts = ["-Iexternal/gtest/include"],
+    srcs = ["classic_test.cc"],
     size="small",
     deps = [
         ":myers",
