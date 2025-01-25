@@ -2,6 +2,8 @@
 #include <string>
 #include <iostream>
 
+#include "lib/myers/classic.hpp"
+
 std::string get_greet(const std::string& who) {
   return "Hello " + who;
 }

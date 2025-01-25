@@ -1,4 +1,7 @@
 cc_binary(
     name = "comparex",
     srcs = ["main.cc"],
+    deps = [
+        "//lib/myers:myers",
+    ]
 )

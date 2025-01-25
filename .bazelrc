@@ -8,6 +8,7 @@ build:profile --copt=-O3
 
 build --copt="-Werror"
 build --copt="-Wsign-compare"
+build --cxxopt="-std=c++17"
 
 build --disk_cache=
 build --nobuild_runfile_links

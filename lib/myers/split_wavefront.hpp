@@ -11,7 +11,7 @@ namespace myers {
 
 template <typename R = Record,
           typename M = profile::Noop>
-class Classic {
+class SplitWavefront {
 private:
     M memory_tracker;
 
@@ -24,17 +24,22 @@ public:
         int m = a.length();
         int n = b.length();
 
-        int offset = m+n;
+        int offset = m + n;
         std::vector<int> wavefront(2 * offset + 1, 0);
 
         memory_tracker += sizeof(int) * wavefront.size();
-        
+
         int x = 0, y = 0;
-        
+
         for (int d = 0; d <= m + n; ++d) {
-            for (int k = -d; k <= d; k += 2) {
+
+            for (int i = 0; i <= 2*d; i += 2) {
+                int k = i - d;
                 int waveIndex = offset + k;
-                if (k == -d || (k != d && wavefront[waveIndex - 1] < wavefront[waveIndex + 1])) {
+
+                if (i == 0
+                    || (i != 2*d
+                        && wavefront[waveIndex - 1] < wavefront[waveIndex + 1])) {
                     // down, delete from a
                     x = wavefront[waveIndex + 1];
                 } else {
@@ -43,17 +48,20 @@ public:
                 }
                 y = x - k;
 
+                // Match (extend diagonal) if possible
                 if (x < m && y < n && a[x] == b[y]) {
-                    // match, move diagonally
-                    ++x; 
+                    ++x;
                     ++y;
                 }
+
+                // Store the furthest reach for diagonal k
                 wavefront[waveIndex] = x;
 
+                // If we've reached the end, reconstruct
                 if (x >= m && y >= n) {
                     std::vector<Record> records;
 
-                    // We've found the path to the end
+                    // Reconstruct the path
                     while (x > 0 || y > 0) {
                         if (x == 0) {
                             records.push_back({'+', b[y - 1]});
@@ -66,6 +74,8 @@ public:
                             --x;
                             --y;
                         } else {
+                            // Decide insert vs delete
+                            // (same check as above, but in reverse order)
                             if (wavefront[waveIndex - 1] < wavefront[waveIndex + 1]) {
                                 records.push_back({'-', a[x - 1]});
                                 --x;
@@ -75,14 +85,16 @@ public:
                             }
                         }
                     }
-                    reverse(records.begin(), records.end());
+
+                    std::reverse(records.begin(), records.end());
                     return records;
                 }
             }
         }
-        
+
+        // In case no edits found (empty strings, or fallback)
         return {};
     }
 };
 
-}
+} // namespace myers

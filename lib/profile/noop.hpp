@@ -1,3 +1,5 @@
+#pragma once
+
 namespace profile {
 
 class Noop {
@@ -10,7 +12,7 @@ public:
     Noop& operator=(Noop&&) noexcept = default;
 
     void operator+=(size_t n) {
-    };
+    }
 };
 
-}
+} // namespace profile

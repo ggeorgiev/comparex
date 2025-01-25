@@ -3,8 +3,9 @@
 #include "benchmark/benchmark.h"
 #include "lib/myers/classic.hpp"
 #include "lib/profile/track.hpp"
+#include "lib/myers/split_wavefront.hpp"
 
-static void BM_Myers(benchmark::State& state) {
+template <class C> void BM_Compare(benchmark::State& state) {
   std::string a = "axc";
   std::string b = "ayc";
 
@@ -13,26 +14,10 @@ static void BM_Myers(benchmark::State& state) {
     b += b;
   }
 
-  myers::Classic classic;
+  C comparer;
 
   for (auto s : state) {
-    classic.compare(a, b);
-  }
-}
-
-static void BM_Track_Myers(benchmark::State& state) {
-  std::string a = "axc";
-  std::string b = "ayc";
-
-  for (int i = 0; i < 6; i++) {
-    a += a;
-    b += b;
-  }
-
-  myers::Classic<myers::Record, profile::Track> classic;
-
-  for (auto s : state) {
-    classic.compare(a, b);
+    comparer.compare(a, b);
   }
 }
 
@@ -54,8 +39,10 @@ static void TR_Myers(benchmark::State& state) {
 }
 
 // Register the function as a benchmark
-BENCHMARK(BM_Myers);
-BENCHMARK(BM_Track_Myers);
+BENCHMARK_TEMPLATE(BM_Compare, myers::Classic<myers::Record, profile::Noop>);
+BENCHMARK_TEMPLATE(BM_Compare, myers::Classic<myers::Record, profile::Track>);
+BENCHMARK_TEMPLATE(BM_Compare, myers::SplitWavefront<myers::Record, profile::Noop>);
+BENCHMARK_TEMPLATE(BM_Compare, myers::SplitWavefront<myers::Record, profile::Track>);
 
 BENCHMARK(TR_Myers)->Iterations(1);
 
