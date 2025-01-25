@@ -1,0 +1,8 @@
+cc_library(
+    name = "profile",
+    hdrs = [
+        "noop.hpp",
+        "track.hpp",
+    ],
+    visibility = ["//visibility:public"],
+)

@@ -3,6 +3,9 @@ cc_library(
     hdrs = [
         "classic.hpp",
     ],
+    deps = [
+        "//lib/profile:profile",
+    ],
 )
 
 cc_test(
