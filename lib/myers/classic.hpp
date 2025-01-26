@@ -20,7 +20,7 @@ public:
     int m = a.length();
     int n = b.length();
 
-    int offset = m + n;
+    int offset = m + n + 1;
     std::vector<int> wavefront(2 * offset + 1, 0);
     std::vector<std::vector<int>> track;
 
