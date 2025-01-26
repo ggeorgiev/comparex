@@ -25,7 +25,7 @@ static void TR_Myers(benchmark::State& state) {
   std::string a = "axc";
   std::string b = "ayc";
 
-  for (int i = 0; i < 0; i++) {
+  for (int i = 0; i < 6; i++) {
     a += a;
     b += b;
   }

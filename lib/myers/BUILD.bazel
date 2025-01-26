@@ -1,14 +1,14 @@
 cc_library(
     name = "myers",
     hdrs = [
-        "record.hpp",
         "classic.hpp",
+        "record.hpp",
         "split_wavefront.hpp",
     ],
-    deps = [
-        "//lib/profile:profile",
-    ],
     visibility = ["//visibility:public"],
+    deps = [
+        "//lib/profile",
+    ],
 )
 
 cc_library(
@@ -20,13 +20,13 @@ cc_library(
 
 cc_test(
     name = "test",
+    size = "small",
     srcs = [
         "comparator_test.cc",
     ],
-    size="small",
     deps = [
-        ":myers",
         "comparator_test",
+        ":myers",
         "@googletest//:gtest",
         "@googletest//:gtest_main",
     ],
@@ -34,10 +34,10 @@ cc_test(
 
 cc_test(
     name = "benchmark",
+    size = "small",
     srcs = [
         "benchmark.cc",
     ],
-    size="small",
     deps = [
         ":myers",
         "@google_benchmark//:benchmark",

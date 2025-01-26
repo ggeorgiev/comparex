@@ -6,8 +6,8 @@
 #include "lib/myers/split_wavefront.hpp"
 
 using ComparatorImplementations = ::testing::Types<
-    myers::Classic<myers::Record, profile::Noop>
-    //myers::SplitWavefront<myers::Record, profile::Noop>
+    myers::Classic<myers::Record, profile::Noop>,
+    myers::SplitWavefront<myers::Record, profile::Noop>
 >;
 
 // Instantiate the test suite with all the implementations you want to test.

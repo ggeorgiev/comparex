@@ -3,8 +3,8 @@
 namespace myers {
 
 struct Record {
-    char op;
-    char symbol;
+  char op;
+  char symbol;
 };
 
 } // namespace myers
