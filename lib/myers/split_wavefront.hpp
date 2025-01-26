@@ -21,7 +21,7 @@ public:
     int m = a.length();
     int n = b.length();
 
-    int offset = (m + n + 1) / 2;
+    int offset = m + n + 1;
     std::vector<int> wavefront(2 * offset + 1, 0);
     std::vector<std::vector<int>> track;
 
@@ -32,22 +32,22 @@ public:
         int waveIndex = offset + k;
 
         int x;
-        if (k == -d ||
-            (k != d && wavefront[waveIndex - 1] < wavefront[waveIndex + 1])) {
+        if (k == -d || (k != d && wavefront.at(waveIndex - 1) <
+                                      wavefront.at(waveIndex + 1))) {
           // down, delete from a
-          x = wavefront[waveIndex + 1];
+          x = wavefront.at(waveIndex + 1);
         } else {
           // right, insert from b
-          x = wavefront[waveIndex - 1] + 1;
+          x = wavefront.at(waveIndex - 1) + 1;
         }
         int y = x - k;
 
-        while (x < m && y < n && a[x] == b[y]) {
+        while (x < m && y < n && a.at(x) == b.at(y)) {
           // match, move diagonally
           ++x;
           ++y;
         }
-        wavefront[waveIndex] = x;
+        wavefront.at(waveIndex) = x;
 
         if (x >= m && y >= n) {
           std::vector<Record> records;
@@ -57,22 +57,22 @@ public:
           // We've found the path to the end
           while (x > 0 || y > 0) {
             if (x == 0) {
-              records.push_back({'+', b[y - 1]});
+              records.push_back({'+', b.at(y - 1)});
               --y;
             } else if (y == 0) {
-              records.push_back({'-', a[x - 1]});
+              records.push_back({'-', a.at(x - 1)});
               --x;
-            } else if (a[x - 1] == b[y - 1]) {
-              records.push_back({' ', a[x - 1]});
+            } else if (a.at(x - 1) == b.at(y - 1)) {
+              records.push_back({' ', a.at(x - 1)});
               --x;
               --y;
             } else {
-              if (wavefront[waveIndex - 1] > wavefront[waveIndex + 1]) {
-                records.push_back({'-', a[x - 1]});
+              if (wavefront.at(waveIndex - 1) > wavefront.at(waveIndex + 1)) {
+                records.push_back({'-', a.at(x - 1)});
                 --x;
                 --waveIndex;
               } else {
-                records.push_back({'+', b[y - 1]});
+                records.push_back({'+', b.at(y - 1)});
                 --y;
                 ++waveIndex;
               }
