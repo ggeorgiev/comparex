@@ -9,9 +9,10 @@
 
 namespace myers {
 
-template <typename R = Record, typename M = profile::Noop>
+template <typename R = Record, typename M = profile::Noop, typename S = uint32_t>
 class Classic {
 private:
+  using size_type = S;
   M memory_tracker;
 
   /**
@@ -24,17 +25,17 @@ private:
    */
   std::vector<R> backtrack(const std::string &a,
                            const std::string &b,
-                           std::vector<std::vector<int>> &track) {
+                           std::vector<std::vector<size_type>> &track) {
 
-    std::vector<int> wavefront = track.back();
+    std::vector<size_type> wavefront = track.back();
     track.pop_back();
 
-    int x = static_cast<int>(a.size());
-    int y = static_cast<int>(b.size());
+    auto x = static_cast<size_type>(a.size());
+    auto y = static_cast<size_type>(b.size());
     // We start from the waveIndex that corresponds to (k = x - y). This is
     // simply the farthest diagonal in the last iteration, though the precise
     // waveIndex might shift depending on how you store wavefronts.
-    int waveIndex = 2 * x + 1;
+    auto waveIndex = 2 * x + 1;
 
     std::vector<R> records;
     // Walk backwards while we still have characters to match/insert/delete
@@ -83,34 +84,34 @@ public:
    * Return the list of edit operations needed to transform @p a into @p b.
    */
   std::vector<R> compare(const std::string &a, const std::string &b) {
-    int m = static_cast<int>(a.size());
-    int n = static_cast<int>(b.size());
+    auto m = static_cast<size_type>(a.size());
+    auto n = static_cast<size_type>(b.size());
 
     // Offset ensures we can index wavefront by (offset + k - d)
-    int offset = m + n + 1;
+    auto offset = m + n + 1;
 
     // Single wavefront array for the current iteration
     // Size of wavefront = 2 * offset + 1 is enough to store all possible diagonals
-    std::vector<int> wavefront(2 * offset + 1, 0);
-    memory_tracker += sizeof(int) * wavefront.size();
+    std::vector<size_type> wavefront(2 * offset + 1, 0);
+    memory_tracker += sizeof(size_type) * wavefront.size();
 
     // Keep track of each iteration’s wavefront for backtracking
-    std::vector<std::vector<int>> track;
+    std::vector<std::vector<size_type>> track;
     track.reserve(m + n + 1); // optional: reduce re-allocations
 
     // At most m+n "phases" in the classic Myers
     bool resolved = false;
-    for (int d = 0; d <= m + n && !resolved; ++d) {
-      int d2 = d * 2;
-      for (int k = 0; k <= d2; k += 2) {
-        int waveIndex = offset + k - d;
+    for (size_type d = 0; d <= m + n && !resolved; ++d) {
+      auto d2 = d * 2;
+      for (size_type k = 0; k <= d2; k += 2) {
+        auto waveIndex = offset + k - d;
 
         // Decide whether we come from "down" (delete) or "right" (insert)
-        int x = (k == 0 ||
+        size_type x = (k == 0 ||
                  (k != d2 && wavefront[waveIndex - 1] < wavefront[waveIndex + 1]))
                     ? wavefront[waveIndex + 1]
                     : wavefront[waveIndex - 1] + 1;
-        int y = x + d - k;
+        size_type y = x + d - k;
 
         // Follow diagonals as far as possible
         while (x < m && y < n && a[x] == b[y]) {

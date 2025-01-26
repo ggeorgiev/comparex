@@ -39,10 +39,10 @@ static void TR_Myers(benchmark::State &state) {
 }
 
 // Register the function as a benchmark
-BENCHMARK_TEMPLATE(BM_Compare, myers::Classic<myers::Record, profile::Noop>);
-BENCHMARK_TEMPLATE(BM_Compare, myers::Classic<myers::Record, profile::Track>);
-BENCHMARK_TEMPLATE(BM_Compare, myers::SplitWavefront<myers::Record, profile::Noop>);
-BENCHMARK_TEMPLATE(BM_Compare, myers::SplitWavefront<myers::Record, profile::Track>);
+BENCHMARK_TEMPLATE(BM_Compare, myers::Classic<myers::Record, profile::Noop, uint32_t>);
+BENCHMARK_TEMPLATE(BM_Compare, myers::Classic<myers::Record, profile::Noop, uint64_t>);
+BENCHMARK_TEMPLATE(BM_Compare, myers::Classic<myers::Record, profile::Track, uint32_t>);
+BENCHMARK_TEMPLATE(BM_Compare, myers::SplitWavefront<myers::Record, profile::Noop, uint32_t>);
 
 BENCHMARK(TR_Myers)->Iterations(1);
 
