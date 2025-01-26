@@ -26,14 +26,15 @@ public:
 
         int offset = m+n;
         std::vector<int> wavefront(2 * offset + 1, 0);
+        std::vector<std::vector<int>> track;
 
         memory_tracker += sizeof(int) * wavefront.size();
-        
-        int x = 0, y = 0;
         
         for (int d = 0; d <= m + n; ++d) {
             for (int k = -d; k <= d; k += 2) {
                 int waveIndex = offset + k;
+
+                int x;
                 if (k == -d || (k != d && wavefront[waveIndex - 1] < wavefront[waveIndex + 1])) {
                     // down, delete from a
                     x = wavefront[waveIndex + 1];
@@ -41,9 +42,9 @@ public:
                     // right, insert from b
                     x = wavefront[waveIndex - 1] + 1;
                 }
-                y = x - k;
+                int y = x - k;
 
-                if (x < m && y < n && a[x] == b[y]) {
+                while (x < m && y < n && a[x] == b[y]) {
                     // match, move diagonally
                     ++x; 
                     ++y;
@@ -52,6 +53,8 @@ public:
 
                 if (x >= m && y >= n) {
                     std::vector<Record> records;
+
+                    waveIndex = x - y + offset;
 
                     // We've found the path to the end
                     while (x > 0 || y > 0) {
@@ -66,19 +69,26 @@ public:
                             --x;
                             --y;
                         } else {
-                            if (wavefront[waveIndex - 1] < wavefront[waveIndex + 1]) {
+                            if (wavefront[waveIndex - 1] > wavefront[waveIndex + 1]) {
                                 records.push_back({'-', a[x - 1]});
                                 --x;
+                                --waveIndex;
                             } else {
                                 records.push_back({'+', b[y - 1]});
                                 --y;
+                                ++waveIndex;
                             }
+                            wavefront = track.back();
+                            track.pop_back();
+
                         }
                     }
                     reverse(records.begin(), records.end());
                     return records;
                 }
             }
+            track.push_back(wavefront);
+            memory_tracker += sizeof(int) * wavefront.size();
         }
         
         return {};

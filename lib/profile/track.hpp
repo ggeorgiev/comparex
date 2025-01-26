@@ -19,7 +19,7 @@ public:
         m_number += n;
     };
 
-    size_t number() {
+    size_t number() const {
         return m_number;
     }
 };
