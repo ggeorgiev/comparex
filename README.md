@@ -8,24 +8,27 @@ This README will walk you step-by-step from the fundamentals of **Myers algorith
 
 ## Table of Contents
 
-1. [Introduction](#introduction)
-2. [What is the Longest Common Subsequence?](#what-is-the-longest-common-subsequence)
-3. [Review of the Classic Myers Algorithm](#review-of-the-classic-myers-algorithm)
-   - [Key Concepts](#key-concepts)
-   - [Myers Algorithm Steps](#myers-algorithm-steps)
-4. [Comparex: New Longest Subsequence Algorithm](#comparex-new-longest-subsequence-algorithm)
-   - [Design Goals](#design-goals)
-   - [Algorithm Outline](#algorithm-outline)
-5. [Installation](#installation)
-6. [Quick Start Example](#quick-start-example)
-7. [Step-by-Step Guide to Comparex Implementation](#step-by-step-guide-to-comparex-implementation)
-   - [Initialization](#1-initialization)
-   - [Core Logic](#2-core-logic)
-   - [Traceback & Reconstructing the LCS](#3-traceback--reconstructing-the-lcs)
-8. [Performance Considerations](#performance-considerations)
-9. [Contributing](#contributing)
-10. [License](#license)
-11. [Further Reading](#further-reading)
+1. [Introduction](#introduction)  
+2. [What is the Longest Common Subsequence?](#what-is-the-longest-common-subsequence)  
+3. [Review of the Classic Myers Algorithm](#review-of-the-classic-myers-algorithm)  
+   - [Key Concepts](#key-concepts)  
+   - [Myers Algorithm Steps](#myers-algorithm-steps)  
+4. [Inplace Twicks](#inplace-twicks)  
+   - [Non-negative k loop](#non-negative-k-loop)  
+   - [Parametrizable size](#parametrizable-size)  
+5. [Comparex: New Longest Subsequence Algorithm](#comparex-new-longest-subsequence-algorithm)  
+   - [Design Goals](#design-goals)  
+   - [Algorithm Outline](#algorithm-outline)  
+6. [Installation](#installation)  
+7. [Quick Start Example](#quick-start-example)  
+8. [Step-by-Step Guide to Comparex Implementation](#step-by-step-guide-to-comparex-implementation)  
+   - [1. Initialization](#1-initialization)  
+   - [2. Core Logic](#2-core-logic)  
+   - [3. Traceback & Reconstructing the LCS](#3-traceback--reconstructing-the-lcs)  
+9. [Performance Considerations](#performance-considerations)  
+10. [Contributing](#contributing)  
+11. [License](#license)  
+12. [Further Reading](#further-reading)  
 
 ---
 
@@ -76,6 +79,18 @@ At a high level, Myers' algorithm can be broken down into:
 While often used to compute "diffs," the algorithm can also yield an LCS by tracking the matched parts.
 
 ---
+
+## Inplace twicks
+
+In the in-place tweaks, I will list the changes made to the code of the classic algorithm. These adjustments do not result in any performance degradation and enable the easy implementation of CompareX features. Additionally, they ensure a fair comparison between the original algorithm and the new one.
+
+### Non-negative k loop
+
+In the original Myers algorithm, the `k` index loops from `-d` to `d`. In our modification, we adjust this to loop from `0` to `2d`. This change allows us to stay within the realm of unsigned numbers, effectively doubling the range of values the algorithm can handle. The minor calculation adjustments required for this modification do not result in any observable performance impact.
+
+### Parametrizable size
+
+Now that the algorithm operates entirely with unsigned numbers, it becomes straightforward to make the size parametrizable, allowing seamless switching between `uint32_t`, `uint64_t`, or other desired types.
 
 ## Comparex: New Longest Subsequence Algorithm
 
