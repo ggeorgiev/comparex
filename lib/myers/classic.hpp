@@ -9,9 +9,10 @@
 
 namespace myers {
 
-template <typename R = Record, typename M = profile::Noop, typename S = uint32_t>
+template <typename Sq = std::string, typename R = Record, typename M = profile::Noop, typename S = uint32_t>
 class Classic {
 private:
+  using sequence_type = Sq;
   using size_type = S;
   M memory_tracker;
 
@@ -23,8 +24,8 @@ private:
    * @param track      Recorded wavefronts for each iteration
    * @return           A list of edit operations (records) from start to finish
    */
-  std::vector<R> backtrack(const std::string &a,
-                           const std::string &b,
+  std::vector<R> backtrack(const sequence_type &a,
+                           const sequence_type &b,
                            std::vector<std::vector<size_type>> &track) {
 
     std::vector<size_type> wavefront = track.back();
@@ -83,7 +84,7 @@ public:
    * Compute the difference between two strings @p a and @p b.
    * Return the list of edit operations needed to transform @p a into @p b.
    */
-  std::vector<R> compare(const std::string &a, const std::string &b) {
+  std::vector<R> compare(const sequence_type &a, const sequence_type &b) {
     auto m = static_cast<size_type>(a.size());
     auto n = static_cast<size_type>(b.size());
 
