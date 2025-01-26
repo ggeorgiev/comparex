@@ -2,10 +2,10 @@
 
 #include "benchmark/benchmark.h"
 #include "lib/myers/classic.hpp"
-#include "lib/profile/track.hpp"
 #include "lib/myers/split_wavefront.hpp"
+#include "lib/profile/track.hpp"
 
-template <class C> void BM_Compare(benchmark::State& state) {
+template <class C> void BM_Compare(benchmark::State &state) {
   std::string a = "axc";
   std::string b = "ayc";
 
@@ -21,7 +21,7 @@ template <class C> void BM_Compare(benchmark::State& state) {
   }
 }
 
-static void TR_Myers(benchmark::State& state) {
+static void TR_Myers(benchmark::State &state) {
   std::string a = "axc";
   std::string b = "ayc";
 

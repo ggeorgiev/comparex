@@ -43,8 +43,7 @@ TYPED_TEST_P(ComparatorTest, classic) {
   TypeParam algorithm;
   auto diff = algorithm.compare(a, b);
 
-  EXPECT_EQ(this->diffToString(diff),
-            "- A, - B,   C, - A,   B, + A,   B,   A, + C");
+  EXPECT_EQ(this->diffToString(diff), "- A, - B,   C, - A,   B, + A,   B,   A, + C");
 }
 
 // Empty vs. Empty
@@ -56,8 +55,7 @@ TYPED_TEST_P(ComparatorTest, emptyVsEmpty) {
   auto diff = algorithm.compare(a, b);
 
   // Both strings are empty -> no operations expected
-  ASSERT_TRUE(diff.empty())
-      << "Expected empty diff, got: " << this->diffToString(diff);
+  ASSERT_TRUE(diff.empty()) << "Expected empty diff, got: " << this->diffToString(diff);
 }
 
 // 3. Empty vs. Non-Empty
@@ -74,8 +72,7 @@ TYPED_TEST_P(ComparatorTest, emptyVsNonEmpty) {
 
   // Check each operation is an insert
   for (size_t i = 0; i < diff.size(); ++i) {
-    EXPECT_EQ(diff[i].op, '+')
-        << "Expected insert for record: " << this->diffToString(diff);
+    EXPECT_EQ(diff[i].op, '+') << "Expected insert for record: " << this->diffToString(diff);
     EXPECT_EQ(diff[i].symbol, b[i]) << "Incorrect symbol in diff record";
   }
 }
@@ -93,8 +90,7 @@ TYPED_TEST_P(ComparatorTest, nonEmptyVsEmpty) {
 
   // Check each operation is a delete
   for (size_t i = 0; i < diff.size(); ++i) {
-    EXPECT_EQ(diff[i].op, '-')
-        << "Expected delete for record: " << this->diffToString(diff);
+    EXPECT_EQ(diff[i].op, '-') << "Expected delete for record: " << this->diffToString(diff);
     EXPECT_EQ(diff[i].symbol, a[i]) << "Incorrect symbol in diff record";
   }
 }
@@ -109,8 +105,7 @@ TYPED_TEST_P(ComparatorTest, identicalStrings) {
 
   // Check each operation is keep
   for (size_t i = 0; i < diff.size(); ++i) {
-    EXPECT_EQ(diff[i].op, ' ')
-        << "Expected delete for record: " << this->diffToString(diff);
+    EXPECT_EQ(diff[i].op, ' ') << "Expected delete for record: " << this->diffToString(diff);
     EXPECT_EQ(diff[i].symbol, a[i]) << "Incorrect symbol in diff record";
   }
 }
@@ -160,7 +155,6 @@ TYPED_TEST_P(ComparatorTest, sameLengthDifferentStrings) {
 }
 
 // Register all tests in this test suite
-REGISTER_TYPED_TEST_SUITE_P(ComparatorTest, sanity, classic, emptyVsEmpty,
-                            emptyVsNonEmpty, nonEmptyVsEmpty, identicalStrings,
-                            frontCharDifference, middleCharDifference,
-                            backCharDifference, sameLengthDifferentStrings);
+REGISTER_TYPED_TEST_SUITE_P(ComparatorTest, sanity, classic, emptyVsEmpty, emptyVsNonEmpty,
+                            nonEmptyVsEmpty, identicalStrings, frontCharDifference,
+                            middleCharDifference, backCharDifference, sameLengthDifferentStrings);
