@@ -34,7 +34,7 @@ private:
 
     auto x = static_cast<size_type>(a.size());
     auto y = static_cast<size_type>(b.size());
-    auto k = static_cast<size_type>(track.size()) + x - y;
+    auto k = static_cast<size_type>(track.size()) + x - y + 1;
 
     std::vector<R> records;
     // Walk backwards while we still have characters to match/insert/delete
@@ -88,34 +88,25 @@ public:
     // Phases ensures we can index wavefront by (phases + k - d)
     auto phases = m + n + 1;
 
-    size_type x = 0;
-    size_type y = 0;
-    for (; x < m && y < n && a[x] == b[y]; ++x, ++y)
-      ;
-    std::vector<size_type> wavefront;
-    wavefront.push_back(x);
-    wavefront.push_back(0);
-
-    // Keep track of each iteration’s wavefront for backtracking
-    std::vector<std::vector<size_type>> track(1, wavefront);
-    memory_tracker += sizeof(size_type) * wavefront.size();
+    std::vector<size_type> wavefront(1, 0);
+    std::vector<std::vector<size_type>> track;
 
     // At most m+n "phases" in the classic Myers
-    for (size_type d = 1; d < phases; ++d) {
-      auto d2 = d * 2;
-      wavefront.resize(wavefront.size() + 2, 0);
-      for (size_type k = 0; k <= d2; k += 2) {
+    for (size_type d = 0; d < phases; ++d) {
+      auto d2 = d * 2 + 1;
+      wavefront.resize(wavefront.size() + 2, 1);
+      for (size_type k = 1; k <= d2; k += 2) {
         auto up = wavefront[k + 1] = wavefront[k];
-        // Decide whether we come from "down" (delete) or "right" (insert)
-        x = k == 0 || (wavefront[k - 1] < up) ? up : wavefront[k - 1] + 1;
-        y = x + d - k;
+        auto left = wavefront[k - 1];
+        size_type x = up > left ? up - 1 : left;
+        size_type y = x + d + 1 - k;
 
         // Follow diagonals as far as possible
         for (; x < m && y < n && a[x] == b[y]; ++x, ++y)
           ;
 
         // Store the furthest x in the wavefront
-        wavefront[k] = x;
+        wavefront[k] = x + 1;
 
         // Early exit: if we've aligned both strings fully, backtrack
         if (x >= m && y >= n) {
