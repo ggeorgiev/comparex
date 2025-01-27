@@ -34,10 +34,7 @@ private:
 
     auto x = static_cast<size_type>(a.size());
     auto y = static_cast<size_type>(b.size());
-    // We start from the waveIndex that corresponds to (k = x - y). This is
-    // simply the farthest diagonal in the last iteration, though the precise
-    // waveIndex might shift depending on how you store wavefronts.
-    auto waveIndex = 2 * x + 1;
+    auto k = static_cast<size_type>(track.size()) + x - y;
 
     std::vector<R> records;
     // Walk backwards while we still have characters to match/insert/delete
@@ -57,16 +54,15 @@ private:
         --y;
       } else {
         // Mismatch: either a deletion from 'a' or an insertion from 'b'
-        if (wavefront.at(waveIndex - 1) > wavefront.at(waveIndex + 1)) {
+        if (wavefront.at(k - 1) > wavefront.at(k + 1)) {
           // Down: came from the "delete" branch
           records.push_back({'-', a.at(x - 1)});
           --x;
-          --waveIndex;
+          k -= 2;
         } else {
           // Right: came from the "insert" branch
           records.push_back({'+', b.at(y - 1)});
           --y;
-          ++waveIndex;
         }
         // After deciding direction, jump to the previous wavefront
         wavefront = track.back();
@@ -92,25 +88,26 @@ public:
     // Phases ensures we can index wavefront by (phases + k - d)
     auto phases = m + n + 1;
 
-    // Single wavefront array for the current iteration
-    // Size of wavefront = 2 * phases + 1 is enough to store all possible diagonals
-    std::vector<size_type> wavefront(2 * phases + 1, 0);
+    size_type x = 0;
+    for (size_type y = 0; x < m && y < n && a[x] == b[y]; ++x, ++y)
+          ;
+    std::vector<size_type> wavefront(1, x);
+    wavefront.push_back(0);
     memory_tracker += sizeof(size_type) * wavefront.size();
 
     // Keep track of each iteration’s wavefront for backtracking
-    std::vector<std::vector<size_type>> track;
-    track.reserve(phases); // optional: reduce re-allocations
+    std::vector<std::vector<size_type>> track(1, wavefront);
 
     // At most m+n "phases" in the classic Myers
-    for (size_type d = 0; d < phases; ++d) {
+    for (size_type d = 1; d < phases; ++d) {
       auto d2 = d * 2;
+      wavefront.resize(wavefront.size()+2,0);
       for (size_type k = 0; k <= d2; k += 2) {
-        auto waveIndex = phases + k - d;
-
+        wavefront[k + 1] = wavefront[k];
         // Decide whether we come from "down" (delete) or "right" (insert)
-        size_type x = (k == 0 || (k != d2 && wavefront[waveIndex - 1] < wavefront[waveIndex + 1]))
-                          ? wavefront[waveIndex + 1]
-                          : wavefront[waveIndex - 1] + 1;
+        size_type x = (k == 0 || (k != d2 && wavefront[k - 1] < wavefront[k + 1]))
+                          ? wavefront[k + 1]
+                          : wavefront[k - 1] + 1;
         size_type y = x + d - k;
 
         // Follow diagonals as far as possible
@@ -118,7 +115,7 @@ public:
           ;
 
         // Store the furthest x in the wavefront
-        wavefront[waveIndex] = x;
+        wavefront[k] = x;
 
         // Early exit: if we've aligned both strings fully, backtrack
         if (x >= m && y >= n) {
