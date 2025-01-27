@@ -89,25 +89,26 @@ public:
     auto phases = m + n + 1;
 
     size_type x = 0;
-    for (size_type y = 0; x < m && y < n && a[x] == b[y]; ++x, ++y)
+    size_type y = 0;
+    for (; x < m && y < n && a[x] == b[y]; ++x, ++y)
       ;
-    std::vector<size_type> wavefront(1, x);
+    std::vector<size_type> wavefront;
+    wavefront.push_back(x);
     wavefront.push_back(0);
-    memory_tracker += sizeof(size_type) * wavefront.size();
 
     // Keep track of each iteration’s wavefront for backtracking
     std::vector<std::vector<size_type>> track(1, wavefront);
+    memory_tracker += sizeof(size_type) * wavefront.size();
 
     // At most m+n "phases" in the classic Myers
     for (size_type d = 1; d < phases; ++d) {
       auto d2 = d * 2;
       wavefront.resize(wavefront.size() + 2, 0);
       for (size_type k = 0; k <= d2; k += 2) {
-        wavefront[k + 1] = wavefront[k];
+        auto up = wavefront[k + 1] = wavefront[k];
         // Decide whether we come from "down" (delete) or "right" (insert)
-        x = (k == 0 || (k != d2 && wavefront[k - 1] < wavefront[k + 1])) ? wavefront[k + 1]
-                                                                         : wavefront[k - 1] + 1;
-        size_type y = x + d - k;
+        x = k == 0 || (wavefront[k - 1] < up) ? up : wavefront[k - 1] + 1;
+        y = x + d - k;
 
         // Follow diagonals as far as possible
         for (; x < m && y < n && a[x] == b[y]; ++x, ++y)
