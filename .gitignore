@@ -20,9 +20,6 @@
 /external
 /compile_commands.json
 
-# VS Code files
-.vscode/
-
 # mac os files
 .DS_Store
 

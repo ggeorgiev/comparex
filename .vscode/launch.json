@@ -1,0 +1,41 @@
+{
+  "name": "Unit tests Launch",
+  "type": "cppdbg",
+  "request": "launch",
+  "program": "${workspaceFolder}/bazel-bin/lib/myers/test",
+  "stopAtEntry": false,
+  "customLaunchSetupCommands": [
+    {
+      "text": "target-run",
+      "description": "run target",
+      "ignoreFailures": false
+    }
+  ],
+  "launchCompleteCommand": "exec-run",
+  "linux": {
+    "MIMode": "gdb",
+    "miDebuggerPath": "/usr/bin/gdb"
+  },
+  "osx": {
+    "MIMode": "lldb"
+  },
+  "windows": {
+    "MIMode": "gdb",
+    "miDebuggerPath": "C:\\MinGw\\bin\\gdb.exe"
+  },
+  "configurations": [
+  {
+    "name": "Unit tests Launch",
+    "type": "cppdbg",
+    "request": "launch",
+    "program": "${workspaceFolder}/bazel-bin/lib/myers/test",
+    "args": ["--gtest_filter=Myers/ComparatorTest/0.middleCharDifference"],
+    "stopAtEntry": false,
+    "cwd": "${fileDirname}",
+    "environment": [],
+    "externalConsole": false,
+    "MIMode": "lldb",
+    "preLaunchTask": "build unit tests"
+  }
+  ]
+}
