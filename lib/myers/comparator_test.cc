@@ -24,6 +24,6 @@ public:
 };
 
 TEST(Limitations, no_size) {
-  //myers::Classic<NoSizeString, myers::Record, profile::Noop, uint32_t> comparator;
-  //comparator.compare("", "");
+  // myers::Classic<NoSizeString, myers::Record, profile::Noop, uint32_t> comparator;
+  // comparator.compare("", "");
 }

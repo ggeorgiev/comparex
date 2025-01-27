@@ -24,28 +24,6 @@ protected:
 
 TYPED_TEST_SUITE_P(ComparatorTest);
 
-// Sanity check
-TYPED_TEST_P(ComparatorTest, sanity) {
-  std::string a = "ABCABBA";
-  std::string b = "CAB";
-
-  TypeParam algorithm;
-  auto diff = algorithm.compare(a, b);
-
-  EXPECT_EQ(this->diffToString(diff), "- A, - B,   C,   A, - B,   B, - A");
-}
-
-// Sanity check
-TYPED_TEST_P(ComparatorTest, classic) {
-  std::string a = "ABCABBA";
-  std::string b = "CBABAC";
-
-  TypeParam algorithm;
-  auto diff = algorithm.compare(a, b);
-
-  EXPECT_EQ(this->diffToString(diff), "- A, - B,   C, - A,   B, + A,   B,   A, + C");
-}
-
 // Empty vs. Empty
 TYPED_TEST_P(ComparatorTest, emptyVsEmpty) {
   std::string a;
@@ -154,7 +132,41 @@ TYPED_TEST_P(ComparatorTest, sameLengthDifferentStrings) {
   EXPECT_EQ(this->diffToString(diff), "- A, - A, - A, - A, + B, + B, + B, + B");
 }
 
+// Everywhere character difference
+TYPED_TEST_P(ComparatorTest, everywhereCharDifference) {
+  std::string a = "XAXBX";
+  std::string b = "YAYBY";
+
+  TypeParam algorithm;
+  auto diff = algorithm.compare(a, b);
+
+  EXPECT_EQ(this->diffToString(diff), "- X, + Y,   A, - X, + Y,   B, - X, + Y");
+}
+
+// Sanity check
+TYPED_TEST_P(ComparatorTest, sanity) {
+  std::string a = "ABCABBA";
+  std::string b = "CAB";
+
+  TypeParam algorithm;
+  auto diff = algorithm.compare(a, b);
+
+  EXPECT_EQ(this->diffToString(diff), "- A, - B,   C,   A, - B,   B, - A");
+}
+
+// Sanity check
+TYPED_TEST_P(ComparatorTest, classic) {
+  std::string a = "ABCABBA";
+  std::string b = "CBABAC";
+
+  TypeParam algorithm;
+  auto diff = algorithm.compare(a, b);
+
+  EXPECT_EQ(this->diffToString(diff), "- A, - B,   C, + B,   A, - B,   B,   A, + C");
+}
+
 // Register all tests in this test suite
-REGISTER_TYPED_TEST_SUITE_P(ComparatorTest, sanity, classic, emptyVsEmpty, emptyVsNonEmpty,
-                            nonEmptyVsEmpty, identicalStrings, frontCharDifference,
-                            middleCharDifference, backCharDifference, sameLengthDifferentStrings);
+REGISTER_TYPED_TEST_SUITE_P(ComparatorTest, emptyVsEmpty, emptyVsNonEmpty, nonEmptyVsEmpty,
+                            identicalStrings, frontCharDifference, everywhereCharDifference,
+                            middleCharDifference, backCharDifference, sameLengthDifferentStrings,
+                            sanity, classic);
