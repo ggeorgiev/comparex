@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <string>
 #include <vector>
+#include <cstdint>
 
 #include "lib/profile/noop.hpp"
 #include "record.hpp"
