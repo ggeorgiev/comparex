@@ -9,11 +9,12 @@
 
 namespace myers {
 
-template <typename Sq = std::string, typename R = Record, typename M = profile::Noop, typename S = uint32_t>
+template <typename Sq = std::string, typename R = Record, typename M = profile::Noop,
+          typename Sz = uint32_t>
 class Classic {
 private:
   using sequence_type = Sq;
-  using size_type = S;
+  using size_type = Sz;
   M memory_tracker;
 
   /**
@@ -24,8 +25,7 @@ private:
    * @param track      Recorded wavefronts for each iteration
    * @return           A list of edit operations (records) from start to finish
    */
-  std::vector<R> backtrack(const sequence_type &a,
-                           const sequence_type &b,
+  std::vector<R> backtrack(const sequence_type &a, const sequence_type &b,
                            std::vector<std::vector<size_type>> &track) {
 
     std::vector<size_type> wavefront = track.back();
@@ -107,14 +107,14 @@ public:
         auto waveIndex = phases + k - d;
 
         // Decide whether we come from "down" (delete) or "right" (insert)
-        size_type x = (k == 0 ||
-                 (k != d2 && wavefront[waveIndex - 1] < wavefront[waveIndex + 1]))
-                    ? wavefront[waveIndex + 1]
-                    : wavefront[waveIndex - 1] + 1;
+        size_type x = (k == 0 || (k != d2 && wavefront[waveIndex - 1] < wavefront[waveIndex + 1]))
+                          ? wavefront[waveIndex + 1]
+                          : wavefront[waveIndex - 1] + 1;
         size_type y = x + d - k;
 
         // Follow diagonals as far as possible
-        for (;x < m && y < n && a[x] == b[y]; ++x, ++y);
+        for (; x < m && y < n && a[x] == b[y]; ++x, ++y)
+          ;
 
         // Store the furthest x in the wavefront
         wavefront[waveIndex] = x;

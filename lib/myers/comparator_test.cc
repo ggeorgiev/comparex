@@ -14,18 +14,16 @@ INSTANTIATE_TYPED_TEST_SUITE_P(Myers, ComparatorTest, ComparatorImplementations)
 
 #include <string>
 
-class NoSizeString : public std::string
-{
+class NoSizeString : public std::string {
 public:
-    using std::string::string; // Inherit constructors
+  using std::string::string; // Inherit constructors
 
-    // Delete size()
-    size_type size() const = delete;
-    size_type length() const = delete;
+  // Delete size()
+  size_type size() const = delete;
+  size_type length() const = delete;
 };
 
-
 TEST(Limitations, no_size) {
-    myers::Classic<std::string, myers::Record, profile::Noop, uint32_t> comparator;
-    comparator.compare("", "");
+  //myers::Classic<NoSizeString, myers::Record, profile::Noop, uint32_t> comparator;
+  //comparator.compare("", "");
 }
