@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <list>
+#include <valarray>
 
 #include "lib/profile/noop.hpp"
 #include "record.hpp"
@@ -27,14 +29,13 @@ private:
    * @return           A list of edit operations (records) from start to finish
    */
   std::vector<R> backtrack(const sequence_type &a, const sequence_type &b,
-                           std::vector<std::vector<size_type>> &track) {
+                           std::vector<std::valarray<bool>> &track) {
 
-    std::vector<size_type> wavefront = track.back();
-    track.pop_back();
+    auto truns = track.rbegin();
 
     auto x = static_cast<size_type>(a.size());
     auto y = static_cast<size_type>(b.size());
-    auto k = static_cast<size_type>(track.size()) + x - y + 1;
+    auto k = static_cast<size_type>(track.size() + x - y) / 2;
 
     std::vector<R> records;
     // Walk backwards while we still have characters to match/insert/delete
@@ -54,19 +55,16 @@ private:
         --y;
       } else {
         // Mismatch: either a deletion from 'a' or an insertion from 'b'
-        if (wavefront.at(k - 1) >= wavefront.at(k + 1)) {
-          // Down: came from the "delete" branch
-          records.push_back({'-', a.at(x - 1)});
-          --x;
-          k -= 2;
-        } else {
-          // Right: came from the "insert" branch
+        if ((*truns)[k]) {
           records.push_back({'+', b.at(y - 1)});
           --y;
+        } else {
+          records.push_back({'-', a.at(x - 1)});
+          --x;
+          --k;
         }
-        // After deciding direction, jump to the previous wavefront
-        wavefront = track.back();
-        track.pop_back();
+        // After deciding direction, jump to the previous truns
+        truns++;
       }
     }
     // The reconstruction is backwards; flip it to get the final sequence
@@ -89,17 +87,18 @@ public:
     auto phases = m + n + 1;
 
     std::vector<size_type> wavefront(1, 0);
-    std::vector<std::vector<size_type>> track;
+    std::vector<std::valarray<bool>> track;
 
     // At most m+n "phases" in the classic Myers
-    for (size_type d = 0; d < phases; ++d) {
-      auto d2 = d * 2 + 1;
+    for (size_type d = 1; d <= phases; ++d) {
+      auto d2 = d * 2;
+      std::valarray<bool> turns(d);
       wavefront.resize(wavefront.size() + 2, 1);
       for (size_type k = 1; k <= d2; k += 2) {
         auto up = wavefront[k + 1] = wavefront[k];
         auto left = wavefront[k - 1];
-        size_type x = up > left ? up - 1 : left;
-        size_type y = x + d + 1 - k;
+        size_type x = (turns[k/2] = up > left) ? up - 1 : left;
+        size_type y = x + d - k;
 
         // Follow diagonals as far as possible
         for (; x < m && y < n && a[x] == b[y]; ++x, ++y)
@@ -116,8 +115,8 @@ public:
       }
 
       // Save the current wavefront for backtracking
-      track.push_back(wavefront);
-      memory_tracker += sizeof(int) * wavefront.size();
+      memory_tracker += (turns.size() + 7) / 8;
+      track.push_back(std::move(turns));
     }
 
     // Backtrack to build the edits

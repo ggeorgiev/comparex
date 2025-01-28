@@ -143,6 +143,33 @@ TYPED_TEST_P(ComparatorTest, everywhereCharDifference) {
   EXPECT_EQ(this->diffToString(diff), "- X, + Y,   A, - X, + Y,   B, - X, + Y");
 }
 
+// Front substring
+TYPED_TEST_P(ComparatorTest, frontSubstring) {
+  std::string a = "ABCDEF";
+  std::string b = "ABC";
+
+  TypeParam algorithm;
+  
+  auto diff1 = algorithm.compare(a, b);
+  EXPECT_EQ(this->diffToString(diff1), "  A,   B,   C, - D, - E, - F");
+
+  auto diff2 = algorithm.compare(b, a);
+  EXPECT_EQ(this->diffToString(diff2), "  A,   B,   C, + D, + E, + F");
+}
+
+// Back substring
+TYPED_TEST_P(ComparatorTest, backSubstring) {
+  std::string a = "ABCDEF";
+  std::string b = "DEF";
+
+  TypeParam algorithm;
+  auto diff1 = algorithm.compare(a, b);
+  EXPECT_EQ(this->diffToString(diff1), "- A, - B, - C,   D,   E,   F");
+
+  auto diff2 = algorithm.compare(b, a);
+  EXPECT_EQ(this->diffToString(diff2), "+ A, + B, + C,   D,   E,   F");
+}
+
 // Sanity check
 TYPED_TEST_P(ComparatorTest, sanity) {
   std::string a = "ABCABBA";
@@ -169,4 +196,5 @@ TYPED_TEST_P(ComparatorTest, classic) {
 REGISTER_TYPED_TEST_SUITE_P(ComparatorTest, emptyVsEmpty, emptyVsNonEmpty, nonEmptyVsEmpty,
                             identicalStrings, frontCharDifference, everywhereCharDifference,
                             middleCharDifference, backCharDifference, sameLengthDifferentStrings,
+                            frontSubstring, backSubstring,
                             sanity, classic);

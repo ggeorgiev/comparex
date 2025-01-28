@@ -15,7 +15,8 @@ This README will walk you step-by-step from the fundamentals of **Myers algorith
    - [Myers Algorithm Steps](#myers-algorithm-steps)  
 4. [Inplace Twicks](#inplace-twicks)  
    - [Non-negative k loop](#non-negative-k-loop)  
-   - [Parametrizable size](#parametrizable-size)  
+   - [Parametrizable size](#parametrizable-size)
+   - [Bitset for the Turns](#bitset-for-the-turns)
 5. [Comparex: New Longest Subsequence Algorithm](#comparex-new-longest-subsequence-algorithm)  
    - [Design Goals](#design-goals)  
    - [Algorithm Outline](#algorithm-outline)  
@@ -91,6 +92,10 @@ In the original Myers algorithm, the `k` index loops from `-d` to `d`. In our mo
 ### Parametrizable size
 
 Now that the algorithm operates entirely with unsigned numbers, it becomes straightforward to make the size parametrizable, allowing seamless switching between `uint32_t`, `uint64_t`, or other desired types.
+
+### Bitset for the Turns
+
+During forward tracing, it is essential to track the value of `x`, which inherently determines the value of `y`. However, during backtracing, this is unnecessary. The only requirement is to record the turns taken. This method reduces the memory footprint by approximately 32x or 64x, depending on the size of `size_type`. By managing significantly less memory, it also enhances performance.
 
 ## Comparex: New Longest Subsequence Algorithm
 
