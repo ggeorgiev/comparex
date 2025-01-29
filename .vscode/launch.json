@@ -29,7 +29,7 @@
     "type": "cppdbg",
     "request": "launch",
     "program": "${workspaceFolder}/bazel-bin/lib/myers/test",
-    "args": ["--gtest_filter=Myers/ComparatorTest/0.backCharDifference"],
+    "args": ["--gtest_filter=Myers/ComparatorTest/0.middleCharDifference"],
     "stopAtEntry": false,
     "cwd": "${fileDirname}",
     "environment": [],

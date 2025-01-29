@@ -18,6 +18,7 @@ template <class C> void BM_Compare(benchmark::State &state) {
 
   for (auto s : state) {
     comparer.compare(a, b);
+    comparer.compare(b, a);
   }
 }
 
