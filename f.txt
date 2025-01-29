@@ -1,0 +1,274 @@
+commit a91a95df86e15dd218d9711f9bb2e85242b7d439
+Author: George Georgiev <george.georgiev.sf@gmail.com>
+Date:   Mon Jan 27 21:39:41 2025 -0800
+
+    Bitset for the Turns
+
+diff --git a/.vscode/launch.json b/.vscode/launch.json
+index 97d0d9a..cba29e8 100644
+--- a/.vscode/launch.json
++++ b/.vscode/launch.json
+@@ -29,7 +29,7 @@
+     "type": "cppdbg",
+     "request": "launch",
+     "program": "${workspaceFolder}/bazel-bin/lib/myers/test",
+-    "args": ["--gtest_filter=Myers/ComparatorTest/0.everywhereCharDifference"],
++    "args": ["--gtest_filter=Myers/ComparatorTest/0.backCharDifference"],
+     "stopAtEntry": false,
+     "cwd": "${fileDirname}",
+     "environment": [],
+diff --git a/README.md b/README.md
+index 1d58e46..86f2c50 100644
+--- a/README.md
++++ b/README.md
+@@ -15,7 +15,8 @@ This README will walk you step-by-step from the fundamentals of **Myers algorith
+    - [Myers Algorithm Steps](#myers-algorithm-steps)  
+ 4. [Inplace Twicks](#inplace-twicks)  
+    - [Non-negative k loop](#non-negative-k-loop)  
+-   - [Parametrizable size](#parametrizable-size)  
++   - [Parametrizable size](#parametrizable-size)
++   - [Bitset for the Turns](#bitset-for-the-turns)
+ 5. [Comparex: New Longest Subsequence Algorithm](#comparex-new-longest-subsequence-algorithm)  
+    - [Design Goals](#design-goals)  
+    - [Algorithm Outline](#algorithm-outline)  
+@@ -92,6 +93,10 @@ In the original Myers algorithm, the `k` index loops from `-d` to `d`. In our mo
+ 
+ Now that the algorithm operates entirely with unsigned numbers, it becomes straightforward to make the size parametrizable, allowing seamless switching between `uint32_t`, `uint64_t`, or other desired types.
+ 
++### Bitset for the Turns
++
++During forward tracing, it is essential to track the value of `x`, which inherently determines the value of `y`. However, during backtracing, this is unnecessary. The only requirement is to record the turns taken. This method reduces the memory footprint by approximately 32x or 64x, depending on the size of `size_type`. By managing significantly less memory, it also enhances performance.
++
+ ## Comparex: New Longest Subsequence Algorithm
+ 
+ ### Design Goals
+diff --git a/lib/myers/classic.hpp b/lib/myers/classic.hpp
+index ab17759..ea334cd 100644
+--- a/lib/myers/classic.hpp
++++ b/lib/myers/classic.hpp
+@@ -4,6 +4,8 @@
+ #include <cstdint>
+ #include <string>
+ #include <vector>
++#include <list>
++#include <valarray>
+ 
+ #include "lib/profile/noop.hpp"
+ #include "record.hpp"
+@@ -27,14 +29,13 @@ private:
+    * @return           A list of edit operations (records) from start to finish
+    */
+   std::vector<R> backtrack(const sequence_type &a, const sequence_type &b,
+-                           std::vector<std::vector<size_type>> &track) {
++                           std::vector<std::valarray<bool>> &track) {
+ 
+-    std::vector<size_type> wavefront = track.back();
+-    track.pop_back();
++    auto truns = track.rbegin();
+ 
+     auto x = static_cast<size_type>(a.size());
+     auto y = static_cast<size_type>(b.size());
+-    auto k = static_cast<size_type>(track.size()) + x - y + 1;
++    auto k = static_cast<size_type>(track.size() + x - y) / 2;
+ 
+     std::vector<R> records;
+     // Walk backwards while we still have characters to match/insert/delete
+@@ -54,19 +55,16 @@ private:
+         --y;
+       } else {
+         // Mismatch: either a deletion from 'a' or an insertion from 'b'
+-        if (wavefront.at(k - 1) >= wavefront.at(k + 1)) {
+-          // Down: came from the "delete" branch
+-          records.push_back({'-', a.at(x - 1)});
+-          --x;
+-          k -= 2;
+-        } else {
+-          // Right: came from the "insert" branch
++        if ((*truns)[k]) {
+           records.push_back({'+', b.at(y - 1)});
+           --y;
++        } else {
++          records.push_back({'-', a.at(x - 1)});
++          --x;
++          --k;
+         }
+-        // After deciding direction, jump to the previous wavefront
+-        wavefront = track.back();
+-        track.pop_back();
++        // After deciding direction, jump to the previous truns
++        truns++;
+       }
+     }
+     // The reconstruction is backwards; flip it to get the final sequence
+@@ -89,17 +87,18 @@ public:
+     auto phases = m + n + 1;
+ 
+     std::vector<size_type> wavefront(1, 0);
+-    std::vector<std::vector<size_type>> track;
++    std::vector<std::valarray<bool>> track;
+ 
+     // At most m+n "phases" in the classic Myers
+-    for (size_type d = 0; d < phases; ++d) {
+-      auto d2 = d * 2 + 1;
++    for (size_type d = 1; d <= phases; ++d) {
++      auto d2 = d * 2;
++      std::valarray<bool> turns(d);
+       wavefront.resize(wavefront.size() + 2, 1);
+       for (size_type k = 1; k <= d2; k += 2) {
+         auto up = wavefront[k + 1] = wavefront[k];
+         auto left = wavefront[k - 1];
+-        size_type x = up > left ? up - 1 : left;
+-        size_type y = x + d + 1 - k;
++        size_type x = (turns[k/2] = up > left) ? up - 1 : left;
++        size_type y = x + d - k;
+ 
+         // Follow diagonals as far as possible
+         for (; x < m && y < n && a[x] == b[y]; ++x, ++y)
+@@ -116,8 +115,8 @@ public:
+       }
+ 
+       // Save the current wavefront for backtracking
+-      track.push_back(wavefront);
+-      memory_tracker += sizeof(int) * wavefront.size();
++      memory_tracker += (turns.size() + 7) / 8;
++      track.push_back(std::move(turns));
+     }
+ 
+     // Backtrack to build the edits
+diff --git a/lib/myers/comparator_test.hpp b/lib/myers/comparator_test.hpp
+index 4a39a0a..e971d01 100644
+--- a/lib/myers/comparator_test.hpp
++++ b/lib/myers/comparator_test.hpp
+@@ -143,6 +143,33 @@ TYPED_TEST_P(ComparatorTest, everywhereCharDifference) {
+   EXPECT_EQ(this->diffToString(diff), "- X, + Y,   A, - X, + Y,   B, - X, + Y");
+ }
+ 
++// Front substring
++TYPED_TEST_P(ComparatorTest, frontSubstring) {
++  std::string a = "ABCDEF";
++  std::string b = "ABC";
++
++  TypeParam algorithm;
++  
++  auto diff1 = algorithm.compare(a, b);
++  EXPECT_EQ(this->diffToString(diff1), "  A,   B,   C, - D, - E, - F");
++
++  auto diff2 = algorithm.compare(b, a);
++  EXPECT_EQ(this->diffToString(diff2), "  A,   B,   C, + D, + E, + F");
++}
++
++// Back substring
++TYPED_TEST_P(ComparatorTest, backSubstring) {
++  std::string a = "ABCDEF";
++  std::string b = "DEF";
++
++  TypeParam algorithm;
++  auto diff1 = algorithm.compare(a, b);
++  EXPECT_EQ(this->diffToString(diff1), "- A, - B, - C,   D,   E,   F");
++
++  auto diff2 = algorithm.compare(b, a);
++  EXPECT_EQ(this->diffToString(diff2), "+ A, + B, + C,   D,   E,   F");
++}
++
+ // Sanity check
+ TYPED_TEST_P(ComparatorTest, sanity) {
+   std::string a = "ABCABBA";
+@@ -169,4 +196,5 @@ TYPED_TEST_P(ComparatorTest, classic) {
+ REGISTER_TYPED_TEST_SUITE_P(ComparatorTest, emptyVsEmpty, emptyVsNonEmpty, nonEmptyVsEmpty,
+                             identicalStrings, frontCharDifference, everywhereCharDifference,
+                             middleCharDifference, backCharDifference, sameLengthDifferentStrings,
++                            frontSubstring, backSubstring,
+                             sanity, classic);
+diff --git a/lib/myers/split_wavefront.hpp b/lib/myers/split_wavefront.hpp
+index 9771dae..150adaf 100644
+--- a/lib/myers/split_wavefront.hpp
++++ b/lib/myers/split_wavefront.hpp
+@@ -4,6 +4,8 @@
+ #include <cstdint>
+ #include <string>
+ #include <vector>
++#include <list>
++#include <valarray>
+ 
+ #include "lib/profile/noop.hpp"
+ #include "record.hpp"
+@@ -27,14 +29,13 @@ private:
+    * @return           A list of edit operations (records) from start to finish
+    */
+   std::vector<R> backtrack(const sequence_type &a, const sequence_type &b,
+-                           std::vector<std::vector<size_type>> &track) {
++                           std::vector<std::valarray<bool>> &track) {
+ 
+-    std::vector<size_type> wavefront = track.back();
+-    track.pop_back();
++    auto truns = track.rbegin();
+ 
+     auto x = static_cast<size_type>(a.size());
+     auto y = static_cast<size_type>(b.size());
+-    auto k = static_cast<size_type>(track.size()) + x - y + 1;
++    auto k = static_cast<size_type>(track.size() + x - y) / 2;
+ 
+     std::vector<R> records;
+     // Walk backwards while we still have characters to match/insert/delete
+@@ -54,19 +55,16 @@ private:
+         --y;
+       } else {
+         // Mismatch: either a deletion from 'a' or an insertion from 'b'
+-        if (wavefront.at(k - 1) >= wavefront.at(k + 1)) {
+-          // Down: came from the "delete" branch
+-          records.push_back({'-', a.at(x - 1)});
+-          --x;
+-          k -= 2;
+-        } else {
+-          // Right: came from the "insert" branch
++        if ((*truns)[k]) {
+           records.push_back({'+', b.at(y - 1)});
+           --y;
++        } else {
++          records.push_back({'-', a.at(x - 1)});
++          --x;
++          --k;
+         }
+-        // After deciding direction, jump to the previous wavefront
+-        wavefront = track.back();
+-        track.pop_back();
++        // After deciding direction, jump to the previous truns
++        truns++;
+       }
+     }
+     // The reconstruction is backwards; flip it to get the final sequence
+@@ -89,17 +87,18 @@ public:
+     auto phases = m + n + 1;
+ 
+     std::vector<size_type> wavefront(1, 0);
+-    std::vector<std::vector<size_type>> track;
++    std::vector<std::valarray<bool>> track;
+ 
+     // At most m+n "phases" in the classic Myers
+-    for (size_type d = 0; d < phases; ++d) {
+-      auto d2 = d * 2 + 1;
++    for (size_type d = 1; d <= phases; ++d) {
++      auto d2 = d * 2;
++      std::valarray<bool> turns(d);
+       wavefront.resize(wavefront.size() + 2, 1);
+       for (size_type k = 1; k <= d2; k += 2) {
+         auto up = wavefront[k + 1] = wavefront[k];
+         auto left = wavefront[k - 1];
+-        size_type x = up > left ? up - 1 : left;
+-        size_type y = x + d + 1 - k;
++        size_type x = (turns[k/2] = up > left) ? up - 1 : left;
++        size_type y = x + d - k;
+ 
+         // Follow diagonals as far as possible
+         for (; x < m && y < n && a[x] == b[y]; ++x, ++y)
+@@ -116,8 +115,8 @@ public:
+       }
+ 
+       // Save the current wavefront for backtracking
+-      track.push_back(wavefront);
+-      memory_tracker += sizeof(int) * wavefront.size();
++      memory_tracker += (turns.size() + 7) / 8;
++      track.push_back(std::move(turns));
+     }
+ 
+     // Backtrack to build the edits

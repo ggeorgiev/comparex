@@ -2,8 +2,8 @@ cc_library(
     name = "myers",
     hdrs = [
         "classic.hpp",
+        "previous.hpp",
         "record.hpp",
-        "split_wavefront.hpp",
     ],
     visibility = ["//visibility:public"],
     deps = [

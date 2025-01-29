@@ -149,7 +149,7 @@ TYPED_TEST_P(ComparatorTest, frontSubstring) {
   std::string b = "ABC";
 
   TypeParam algorithm;
-  
+
   auto diff1 = algorithm.compare(a, b);
   EXPECT_EQ(this->diffToString(diff1), "  A,   B,   C, - D, - E, - F");
 
@@ -196,5 +196,4 @@ TYPED_TEST_P(ComparatorTest, classic) {
 REGISTER_TYPED_TEST_SUITE_P(ComparatorTest, emptyVsEmpty, emptyVsNonEmpty, nonEmptyVsEmpty,
                             identicalStrings, frontCharDifference, everywhereCharDifference,
                             middleCharDifference, backCharDifference, sameLengthDifferentStrings,
-                            frontSubstring, backSubstring,
-                            sanity, classic);
+                            frontSubstring, backSubstring, sanity, classic);
