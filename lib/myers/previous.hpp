@@ -69,23 +69,21 @@ public:
     std::vector<size_type> echelon(1, 0);
     echelon.push_back(1);
 
-    for (size_type d = 1; d <= phases; ++d) {
-      auto d2 = d * 2;
-      std::valarray<bool> turns(d);
+    for (size_type d = 0; d < phases; ++d) {
+      std::valarray<bool> turns(d+1);
       wavefront.resize(echelon.size() + 1, 1);
 
-      size_t index = 0;
-      for (size_type k = 1; k <= d2; k += 2) {
-        size_type left = echelon[index];
-        size_type up = echelon[index + 1];
-        size_type x = (turns[index] = up > left) ? up - 1 : left;
-        size_type y = x + d - k;
+      for (size_type k = 0, k2 = 0; k <= d; k2 += 2) {
+        size_type left = echelon[k];
+        size_type up = echelon[k + 1];
+        size_type x = (turns[k] = up > left) ? up - 1 : left;
+        size_type y = x + d - k2;
 
         // Follow diagonals as far as possible
         for (; x < m && y < n && a[x] == b[y]; ++x, ++y)
           ;
 
-        wavefront[++index] = x + 1;
+        wavefront[++k] = x + 1;
 
         if (x >= m && y >= n) {
           d = phases; // Force outer loop exit
