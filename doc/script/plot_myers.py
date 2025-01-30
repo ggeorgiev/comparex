@@ -2,6 +2,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.patches import Polygon
 
 def compute_edit_path(A, B):
     """Compute the shortest edit path using dynamic programming."""
@@ -33,11 +34,12 @@ def compute_edit_path(A, B):
     path.reverse()
     return path
 
-def draw_myers_graph(title, title_pad, A, B, transform_func, output_file):
+def draw_myers_graph(title, title_pad, A, B, transform_func, regions, output_file):
     """
     Draw and save Myers graph with customizable parameters.
     """
     N, M = len(A), len(B)
+    min_len = min(N, M)
     path = compute_edit_path(A, B)
 
     fig, ax = plt.subplots(figsize=(12, 12))
@@ -102,6 +104,23 @@ def draw_myers_graph(title, title_pad, A, B, transform_func, output_file):
             ax.text(tx_mid, ty_mid, f'k={k}', color=color, fontsize=8,
                     ha='center', va='center', alpha=0.8)
 
+    if regions:
+        region_colors=['#FF0000', '#00FF00']
+        region1 = [
+            (0, 0),
+            (0, min_len),
+            (min_len, 0)
+        ]
+        poly1 = Polygon([transform_func(x,y) for x,y in region1], 
+                        closed=True, color=region_colors[0], alpha=0.1)
+        ax.add_patch(poly1)
+
+        region3 = [
+            (N, M), (N, M-min_len), (N-min_len, M)]
+        poly3 = Polygon([transform_func(x,y) for x,y in region3],
+                        closed=True, color=region_colors[1], alpha=0.1)
+        ax.add_patch(poly3)
+
     # Highlight path
     if path:
         path_transformed = [transform_func(x, y) for (x, y) in path]
@@ -128,6 +147,7 @@ draw_myers_graph(
     title_pad = 20,
     A="ABCABBA", 
     B="CBABAC",
+    regions=False,
     transform_func=transform_classic,
     output_file="doc/img/plot_classic.png")
 
@@ -136,5 +156,33 @@ draw_myers_graph(
     title_pad = 0,
     A="ABCABBA", 
     B="CBABAC",
+    regions=False,
     transform_func=transform_rhombous,
     output_file="doc/img/plot_classic_rhombous.png")
+
+draw_myers_graph(
+    title = "Myers Diff K Regions Graph",
+    title_pad = 0,
+    A="ABCDEF", 
+    B="ACE",
+    regions=True,
+    transform_func=transform_rhombous,
+    output_file="doc/img/plot_regions1.png")
+
+draw_myers_graph(
+    title = "Myers Diff K Regions Graph",
+    title_pad = 0,
+    A="ACE", 
+    B="ABCDEF",
+    regions=True,
+    transform_func=transform_rhombous,
+    output_file="doc/img/plot_regions2.png")
+
+draw_myers_graph(
+    title = "Myers Diff K Regions Graph",
+    title_pad = 0,
+    A="ABC", 
+    B="ACE",
+    regions=True,
+    transform_func=transform_rhombous,
+    output_file="doc/img/plot_regions3.png")

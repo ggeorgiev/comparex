@@ -17,6 +17,8 @@ This README will walk you step-by-step from the fundamentals of **Myers algorith
    - [Non-negative k loop](#non-negative-k-loop)  
    - [Parametrizable size](#parametrizable-size)
    - [Bitset for the Turns](#bitset-for-the-turns)
+   - [Shrink the Turns Vector Size](#shrink-the-turns-vector-size)
+   - [Limit the scanning](#limit-the-scanning)
 5. [Comparex: New Longest Subsequence Algorithm](#comparex-new-longest-subsequence-algorithm)  
    - [Design Goals](#design-goals)  
    - [Algorithm Outline](#algorithm-outline)  
@@ -74,7 +76,7 @@ The **Myers algorithm** is generally known for:
 
 At a high level, Myers' algorithm can be broken down into:
 1. **Track "Furthest Reaching" Positions**: For each possible difference `d` in the length of sequences, track the furthest index in the sequences that has been matched.
-2. **Compute Paths**: Use these furthest-reaching positions to advance matching indices through both strings.
+2. **Compute Paths**: Use these furthest-reaching positions to advance matching indices through both sequences.
 3. **Traceback**: Reconstruct the actual edits or the common subsequence from the stored information.
 
 While often used to compute "diffs," the algorithm can also yield an LCS by tracking the matched parts.
@@ -86,6 +88,10 @@ Myers himself drew a similar figure to illustrate how the algorithm works.
 While this is sufficient to illustrate the idea behind the algorithm, it is slightly incorrect. Myers suggested that the path adds a weight of 1 for a mismatch and 1 for a match, making diagonal movements exactly twice as cheap. To be more precise, a graph that represents this more accurately would look like this:
 
 ![Myers classic figure](doc/img/plot_classic_rhombous.png)
+
+### Limit the scanning
+
+Using the same logic from the previous point, we can not only reduce the size of the turn vectors but also apply the same approach to scanning. This eliminates a large number of expansion attempts that we know will fail because they fall outside the boundaries of one sequence or the other.
 
 ---
 
@@ -104,6 +110,32 @@ Now that the algorithm operates entirely with unsigned numbers, it becomes strai
 ### Bitset for the Turns
 
 During forward tracing, it is essential to track the value of `x`, which inherently determines the value of `y`. However, during backtracing, this is unnecessary. The only requirement is to record the turns taken. This method reduces the memory footprint by approximately 32x or 64x, depending on the size of `size_type`. By managing significantly less memory, it also enhances performance.
+
+**Note:** This is a significant idea. It separates the concept of forward traversal of data from the data needed for backtracking, which will become important later on.
+
+### Limit the Scanning and Shrink the Turns Vector Size
+
+To further reduce the memory footprint, we make the following observation:  
+
+We can divide the traversal graph into three sections:  
+
+1. The section where moving forward introduces a new item from both sequences, **A** and **B**. Here, the size of the anti-diagonal increases by 1 with each turn.  
+2. The section where one sequence continues introducing new items while the other has finished. In this area, the size of the diagonal remains constant.  
+3. The section where neither sequence introduces new items, causing the size to decrease.  
+
+With some mathematical adjustments, we can precisely maintain the size of the turns vector to track only the necessary data.
+
+To illustrate this, let's make the sequences differ more in size.
+
+![Myers A>B regions figure](doc/img/plot_regions1.png)
+
+Also, note that region 2 may appear on either side, depending on whether **A** or **B** is longer.
+
+![Myers A<B regions figure](doc/img/plot_regions2.png)
+
+If the two strings are of equal length, this region 2 will be empty.
+
+![Myers A=B regions figure](doc/img/plot_regions3.png)
 
 ## Comparex: New Longest Subsequence Algorithm
 
