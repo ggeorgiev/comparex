@@ -34,7 +34,7 @@ def compute_edit_path(A, B):
     path.reverse()
     return path
 
-def draw_myers_graph(title, title_pad, A, B, transform_func, regions, figsize, output_file):
+def draw_myers_graph(title, title_pad, A, B, transform_func, regions, figsize, fontsize, output_file):
     """
     Draw and save Myers graph with customizable parameters.
     """
@@ -68,10 +68,10 @@ def draw_myers_graph(title, title_pad, A, B, transform_func, regions, figsize, o
     # Add labels using transform_func
     for i, char in enumerate(A):
         tx, ty = transform_func(i + 0.5, -0.25)
-        ax.text(tx, ty, char, ha='center', va='center', fontsize=12, color='darkblue')
+        ax.text(tx, ty, char, ha='center', va='center', fontsize=fontsize, color='darkblue')
     for j, char in enumerate(B):
         tx, ty = transform_func(-0.25, j + 0.5)
-        ax.text(tx, ty, char, ha='center', va='center', fontsize=12, color='darkred')
+        ax.text(tx, ty, char, ha='center', va='center', fontsize=fontsize, color='darkred')
 
     # Draw k anti-diagonals
     max_k = N + M
@@ -138,9 +138,9 @@ def draw_myers_graph(title, title_pad, A, B, transform_func, regions, figsize, o
 def transform_classic(x, y):
     return x, -y
 
+b = 2 - np.sqrt(3)
 def transform_rhombous(x, y):
-    b = -2 + np.sqrt(3)
-    return x + b * y, -y - b * x
+    return x - b * y, -y + b * x
 
 draw_myers_graph(
     title = "Myers Diff Graph",
@@ -148,7 +148,8 @@ draw_myers_graph(
     A="ABCABBA", 
     B="CBABAC",
     regions=False,
-    figsize = (6, 6),
+    figsize = (7, 6),
+    fontsize=12,
     transform_func=transform_classic,
     output_file="doc/img/plot_classic.png")
 
@@ -158,7 +159,8 @@ draw_myers_graph(
     A="ABCABBA", 
     B="CBABAC",
     regions=False,
-    figsize = (7, 7),
+    fontsize=12,
+    figsize = (7, 6),
     transform_func=transform_rhombous,
     output_file="doc/img/plot_classic_rhombous.png")
 
@@ -168,7 +170,8 @@ draw_myers_graph(
     A="ABCDEF", 
     B="ACE",
     regions=True,
-    figsize = (7, 4),
+    figsize = (6, 3),
+    fontsize=10,
     transform_func=transform_rhombous,
     output_file="doc/img/plot_regions1.png")
 
@@ -178,7 +181,8 @@ draw_myers_graph(
     A="ACE", 
     B="ABCDEF",
     regions=True,
-    figsize = (4, 7),
+    figsize = (3, 6),
+    fontsize=10,
     transform_func=transform_rhombous,
     output_file="doc/img/plot_regions2.png")
 
@@ -188,6 +192,7 @@ draw_myers_graph(
     A="ABC", 
     B="ACE",
     regions=True,
-    figsize = (4, 4),
+    figsize = (3, 3),
+    fontsize=8,
     transform_func=transform_rhombous,
     output_file="doc/img/plot_regions3.png")

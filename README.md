@@ -89,10 +89,6 @@ While this is sufficient to illustrate the idea behind the algorithm, it is slig
 
 ![Myers classic figure](doc/img/plot_classic_rhombous.png)
 
-### Limit the scanning
-
-Using the same logic from the previous point, we can not only reduce the size of the turn vectors but also apply the same approach to scanning. This eliminates a large number of expansion attempts that we know will fail because they fall outside the boundaries of one sequence or the other.
-
 ---
 
 ## Inplace twicks
@@ -113,7 +109,7 @@ During forward tracing, it is essential to track the value of `x`, which inheren
 
 **Note:** This is a significant idea. It separates the concept of forward traversal of data from the data needed for backtracking, which will become important later on.
 
-### Limit the Scanning and Shrink the Turns Vector Size
+### Shrink the Turns Vector Size
 
 To further reduce the memory footprint, we make the following observation:  
 
@@ -136,6 +132,10 @@ Also, note that region 2 may appear on either side, depending on whether **A** o
 If the two strings are of equal length, this region 2 will be empty.
 
 ![Myers A=B regions figure](doc/img/plot_regions3.png)
+
+### Limit the scanning
+
+Using the same logic from the previous point, we can not only reduce the size of the turn vectors but also apply the same approach to scanning. This eliminates a large number of expansion attempts that we know will fail because they fall outside the boundaries of one sequence or the other.
 
 ## Comparex: New Longest Subsequence Algorithm
 
