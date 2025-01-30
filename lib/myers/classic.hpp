@@ -22,10 +22,13 @@ private:
 
   std::vector<R> backtrack(const sequence_type &a, const sequence_type &b,
                            std::vector<std::valarray<bool>> &track) {
-    auto truns = track.rbegin();
     auto x = static_cast<size_type>(a.size());
     auto y = static_cast<size_type>(b.size());
-    auto k = static_cast<size_type>(track.size() + x - y) / 2;
+    const auto n = y;
+
+    auto truns = track.size();
+    auto k = static_cast<size_type>(truns + x - y) / 2;
+    if (--truns >= n) k -= truns - n;
 
     std::vector<R> records;
     while (x > 0 || y > 0) {
@@ -40,15 +43,15 @@ private:
         --x;
         --y;
       } else {
-        if ((*truns)[k]) {
+        if (track[truns--][k]) {
           records.push_back({'+', b.at(y - 1)});
           --y;
+          if (truns >= n) ++k;
         } else {
           records.push_back({'-', a.at(x - 1)});
           --x;
-          --k;
+          if (truns < n) --k;
         }
-        truns++;
       }
     }
     std::reverse(records.begin(), records.end());
@@ -69,17 +72,19 @@ public:
     std::vector<size_type> echelon(1, 0);
     echelon.push_back(1);
 
+    size_type k_start = 0;
+    size_type k_end = 0;
     for (size_type d = 0; d < phases; ++d) {
-      std::valarray<bool> turns(d+1);
       wavefront.resize(echelon.size() + 1, 1);
 
-      size_type k_start = (d < n) ? 0 : d - n;
-      size_type k_end = (d < m) ? d : m;
+      if (d > n) ++k_start;
 
-      for (size_type k = k_start, k2 = k_start*2; k <= k_end; k2 += 2) {
+      std::valarray<bool> turns(k_end - k_start + 1);
+      size_t turns_index = 0;
+      for (size_type k = k_start, k2 = k_start * 2; k <= k_end; k2 += 2) {
         size_type left = echelon[k];
         size_type up = echelon[k + 1];
-        size_type x = (turns[k] = up > left) ? up - 1 : left;
+        size_type x = (turns[turns_index++] = up > left) ? up - 1 : left;
         size_type y = x + d - k2;
 
         // Follow diagonals as far as possible
@@ -93,6 +98,8 @@ public:
           break;
         }
       }
+
+      if (k_end < m) ++k_end;
 
       memory_tracker += (turns.size() + 7) / 8;
       track.push_back(std::move(turns));

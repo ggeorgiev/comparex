@@ -70,13 +70,13 @@ public:
     echelon.push_back(1);
 
     for (size_type d = 0; d < phases; ++d) {
-      std::valarray<bool> turns(d+1);
+      std::valarray<bool> turns(d + 1);
       wavefront.resize(echelon.size() + 1, 1);
 
       size_type k_start = (d < n) ? 0 : d - n;
       size_type k_end = (d < m) ? d : m;
 
-      for (size_type k = k_start, k2 = k_start*2; k <= k_end; k2 += 2) {
+      for (size_type k = k_start, k2 = k_start * 2; k <= k_end; k2 += 2) {
         size_type left = echelon[k];
         size_type up = echelon[k + 1];
         size_type x = (turns[k] = up > left) ? up - 1 : left;
