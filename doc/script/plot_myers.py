@@ -34,7 +34,7 @@ def compute_edit_path(A, B):
     path.reverse()
     return path
 
-def draw_myers_graph(title, title_pad, A, B, transform_func, regions, output_file):
+def draw_myers_graph(title, title_pad, A, B, transform_func, regions, figsize, output_file):
     """
     Draw and save Myers graph with customizable parameters.
     """
@@ -42,7 +42,7 @@ def draw_myers_graph(title, title_pad, A, B, transform_func, regions, output_fil
     min_len = min(N, M)
     path = compute_edit_path(A, B)
 
-    fig, ax = plt.subplots(figsize=(10, 10))
+    fig, ax = plt.subplots(figsize=figsize)
     ax.set_aspect('equal')
     ax.axis('off')
     ax.set_title(title, pad=title_pad)
@@ -148,6 +148,7 @@ draw_myers_graph(
     A="ABCABBA", 
     B="CBABAC",
     regions=False,
+    figsize = (6, 6),
     transform_func=transform_classic,
     output_file="doc/img/plot_classic.png")
 
@@ -157,6 +158,7 @@ draw_myers_graph(
     A="ABCABBA", 
     B="CBABAC",
     regions=False,
+    figsize = (7, 7),
     transform_func=transform_rhombous,
     output_file="doc/img/plot_classic_rhombous.png")
 
@@ -166,6 +168,7 @@ draw_myers_graph(
     A="ABCDEF", 
     B="ACE",
     regions=True,
+    figsize = (7, 4),
     transform_func=transform_rhombous,
     output_file="doc/img/plot_regions1.png")
 
@@ -175,6 +178,7 @@ draw_myers_graph(
     A="ACE", 
     B="ABCDEF",
     regions=True,
+    figsize = (4, 7),
     transform_func=transform_rhombous,
     output_file="doc/img/plot_regions2.png")
 
@@ -184,5 +188,6 @@ draw_myers_graph(
     A="ABC", 
     B="ACE",
     regions=True,
+    figsize = (4, 4),
     transform_func=transform_rhombous,
     output_file="doc/img/plot_regions3.png")
