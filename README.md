@@ -79,6 +79,14 @@ At a high level, Myers' algorithm can be broken down into:
 
 While often used to compute "diffs," the algorithm can also yield an LCS by tracking the matched parts.
 
+Myers himself drew a similar figure to illustrate how the algorithm works.
+
+![Myers classic figure](doc/img/plot_classic.png)
+
+While this is sufficient to illustrate the idea behind the algorithm, it is slightly incorrect. Myers suggested that the path adds a weight of 1 for a mismatch and 1 for a match, making diagonal movements exactly twice as cheap. To be more precise, a graph that represents this more accurately would look like this:
+
+![Myers classic figure](doc/img/plot_classic_rhombous.png)
+
 ---
 
 ## Inplace twicks
