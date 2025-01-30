@@ -42,7 +42,7 @@ def draw_myers_graph(title, title_pad, A, B, transform_func, regions, output_fil
     min_len = min(N, M)
     path = compute_edit_path(A, B)
 
-    fig, ax = plt.subplots(figsize=(12, 12))
+    fig, ax = plt.subplots(figsize=(10, 10))
     ax.set_aspect('equal')
     ax.axis('off')
     ax.set_title(title, pad=title_pad)
@@ -132,7 +132,7 @@ def draw_myers_graph(title, title_pad, A, B, transform_func, regions, output_fil
             ax.text(tx, ty, str(step), color='white', backgroundcolor='green', 
                     fontsize=8, ha='center', va='center', zorder=5)
 
-    plt.savefig(output_file, dpi=300, bbox_inches='tight')
+    plt.savefig(output_file, dpi=96, bbox_inches='tight')
     plt.close()
 
 def transform_classic(x, y):
